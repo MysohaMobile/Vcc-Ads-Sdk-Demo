@@ -1,0 +1,65 @@
+CLAUDE.md
+
+# OS & editor
+.DS_Store
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Flutter / Dart
+**/pubspec_overrides.yaml
+**/.dart_tool/
+.metadata
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub/
+.pub-cache/
+**/build/
+**/doc/api/
+app.*.symbols
+app.*.map.json
+coverage/
+
+# Android plugin root - standalone app artifacts
+core/android/app/
+core/android/settings.gradle.kts
+core/android/gradle/
+core/android/gradlew
+core/android/gradlew.bat
+core/android/*.iml
+
+# Android (root + example via **/)
+**/android/.gradle/
+**/android/local.properties
+**/android/key.properties
+**/android/**/*.keystore
+**/android/**/*.jks
+**/android/captures/
+**/android/**/.cxx/
+**/GeneratedPluginRegistrant.java
+**/gradle/wrapper/gradle-wrapper.jar
+
+# iOS plugin root - standalone app artifacts
+core/ios/Runner/
+core/ios/Runner.xcodeproj/
+core/ios/Runner.xcworkspace/
+core/ios/Flutter/
+core/ios/Podfile
+core/ios/Podfile.lock
+core/ios/Package.swift
+core/ios/Sources/
+
+# iOS (root + example via **/)
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/.swiftpm/
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Flutter/ephemeral/
+**/ios/**/DerivedData/
+**/ios/**/xcuserdata/
+**/ios/**/*.xcuserstate
+**/ios/Runner/GeneratedPluginRegistrant.*
+**/ios/Runner.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+**/ios/Runner.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
