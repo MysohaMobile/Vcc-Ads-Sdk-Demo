@@ -10,8 +10,8 @@ enum AdViewType {
   welcome("Welcome", [14028]),
   catfish("Catfish", [13991]),
   home("Home", [19217]),
-  list("List", [13450, 19217, 13450]),
-  stickyList("StickyList", [13450, 19217, 13450]);
+  list("List", [13450, 19325, 14028,19326,19327,19328,19329]),
+  stickyList("StickyList", [13450,13450, 19325, 19326,19327,19328,19329]);
 
   final String label;
   final List<int> ids;
