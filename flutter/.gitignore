@@ -8,6 +8,7 @@ CLAUDE.md
 *.iws
 
 # Flutter / Dart
+/lib/
 **/pubspec_overrides.yaml
 **/.dart_tool/
 .metadata

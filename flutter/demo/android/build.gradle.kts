@@ -2,7 +2,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        maven(url = "https://msh-jfrog.sohatv.vn:443/artifactory/sdk-v3-gradle-dev-local/")
+        maven(url = "https://msh-jfrog.sohatv.vn:443/artifactory/sdk-v3-gradle-release-local/")
     }
 }
 

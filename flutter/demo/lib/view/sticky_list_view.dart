@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:flu_vcc_ads/flu_vcc_ads.dart';
+import 'package:vcc_ads_sdk/vcc_ads_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

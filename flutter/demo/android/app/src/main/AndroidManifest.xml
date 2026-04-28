@@ -4,7 +4,7 @@
 
     <application
         android:label="flu_vcc_ads_example"
-        android:name="${applicationName}"
+        android:name=".MainApplication"
         android:icon="@mipmap/ic_launcher"
         tools:replace="android:label">
         <activity

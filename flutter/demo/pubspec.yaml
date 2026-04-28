@@ -8,8 +8,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  ##chi de test  versioncode = app version
-  flu_vcc_ads: 1.0.2-dev2
+  vcc_ads_sdk: ^1.0.0
   flutter_bloc: ^8.1.3
   cupertino_icons: ^1.0.8
 
