@@ -6,7 +6,7 @@ App demo và playground cho VCCorp Ads SDK trên các nền tảng.
 
 | Platform | Package | Phiên bản | Yêu cầu |
 |----------|---------|-----------|---------|
-| Flutter | `flu_vcc_ads` | `1.0.2-dev2` | Dart SDK `>=3.4.3 <4.0.0` |
+| Flutter | `vcc_ads_sdk` | `1.0.0` | Dart SDK `>=3.4.3 <4.0.0` |
 | React Native | `react-native-my-sdk` | `0.1.0` | React Native `>=0.72`, New Architecture (Fabric) |
 
 ---
@@ -35,7 +35,7 @@ App demo và playground cho VCCorp Ads SDK trên các nền tảng.
 
 ### Lưu ý
 
-- Package `flu_vcc_ads` chưa được publish lên pub.dev. Bắt buộc phải có source SDK local để chạy.
+- Package `vcc_ads_sdk` đã được publish lên pub.dev tại phiên bản `1.0.0`.
 - Chạy `bash setup_local.sh` trong thư mục `flutter/demo` trước khi build.
 - Các Ad ID là môi trường **test** — không dùng cho production.
 
@@ -49,26 +49,4 @@ App demo và playground cho VCCorp Ads SDK trên các nền tảng.
 |-----------|-------|---------|
 | **MySdkView** | Native view cho Live Stream | Android, iOS |
 
-### Lưu ý
 
-- Yêu cầu bật **New Architecture (Fabric)** trên React Native.
-- Package được publish lên npm registry nội bộ `https://npm-mwg.sohatv.vn/` — cần cấu hình `.npmrc` trỏ đúng registry trước khi cài.
-- Chạy `pod install` trong thư mục `ios/` sau khi cài package.
-
----
-
-## Cập nhật source
-
-Thư mục platform được đồng bộ từ server nội bộ, dùng script:
-
-```bash
-bash platform-sync.sh
-```
-
-| Option | Chức năng |
-|--------|-----------|
-| `1` | Pull code mới từ server nội bộ |
-| `2` | Xóa `.git` bên trong và push lên GitHub |
-| `0` | Thoát |
-
-Cấu hình repo trong file `platform-sync.conf`.
