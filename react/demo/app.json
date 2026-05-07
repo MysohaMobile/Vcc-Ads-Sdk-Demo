@@ -28,6 +28,7 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      "./withAndroidSetup",
       "expo-router",
       [
         "expo-splash-screen",
