@@ -1,9 +1,6 @@
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
-import { useState } from 'react'
+import { View, Text, ScrollView, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Ionicons } from '@expo/vector-icons'
-import BasicAdsSection from '../components/BasicAdsSection'
-import MixAdsSection from '../components/MixAdsSection'
+import { BasicAdsSection, MixAdsSection } from '@/src/features/ads'
 
 function DemoTab() {
   return (
@@ -18,17 +15,16 @@ function DemoTab() {
   )
 }
 
-function ManualTab() {
-  return (
-    <View style={styles.manualPlaceholder}>
-      <Ionicons name="construct-outline" size={48} color="#D1D5DB" />
-      <Text style={styles.manualText}>Đang phát triển</Text>
-    </View>
-  )
-}
+// function ManualTab() {
+//   return (
+//     <View style={styles.manualPlaceholder}>
+//       <Ionicons name="construct-outline" size={48} color="#D1D5DB" />
+//       <Text style={styles.manualText}>Đang phát triển</Text>
+//     </View>
+//   )
+// }
 
 export default function HomeScreen() {
-  const [tab, setTab] = useState<'demo' | 'manual'>('demo')
   const insets = useSafeAreaInsets()
 
   return (
@@ -44,7 +40,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <View style={styles.tabRow}>
+        {/* <View style={styles.tabRow}>
           {(['demo', 'manual'] as const).map((t) => (
             <TouchableOpacity key={t} style={styles.tabBtn} onPress={() => setTab(t)}>
               <Ionicons
@@ -58,10 +54,10 @@ export default function HomeScreen() {
               {tab === t && <View style={styles.tabUnderline} />}
             </TouchableOpacity>
           ))}
-        </View>
+        </View> */}
       </View>
 
-      {tab === 'demo' ? <DemoTab /> : <ManualTab />}
+      <DemoTab />
     </View>
   )
 }

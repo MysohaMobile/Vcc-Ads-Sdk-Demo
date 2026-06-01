@@ -2,15 +2,17 @@ import {
   View, Text, TouchableOpacity, StyleSheet,
   NativeModules, ActivityIndicator, FlatList, VirtualizedList,
 } from 'react-native'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
-import { initAds, requestAds, RNAdView, type AdReadyEvent, type AdSizeEvent } from '@mysoha/rn_ads_sdk'
+import { subscribeVccAds, setDeviceId, requestAds, RNAdView, type AdReadyEvent, type AdSizeEvent } from '@mysoha/rn_ads_sdk'
 
-const APP_ID = '670519688'
-const APP_NAME = 'React Native Advertising Demo'
-const APP_VERSION = '2.1.8'
+const DEVICE_ID = '0DC79D1A-0B08-4230-A26E-2D1D8F0878AA'
+// VCC ad server uses url (current article URL) + channel (host-app bundle id) as targeting
+// context. Both MUST be non-empty or the WebView renders blank even though metadata succeeds.
+const DEFAULT_URL = 'https://soha.vn/tan-thuy-hoang-chet-nhu-the-nao-he-lo-3-nguyen-nhan-khong-chi-do-thuoc-truong-sinh-20211107234501608.htm'
+const DEFAULT_CHANNEL = 'vcc.mobilenewsreader.sohanews'
 const REQUEST_ID = '1'
 const ADS_PER_GROUP = 10
 const PAGE_SIZE = 10
@@ -19,14 +21,15 @@ type ArticleRow = { type: 'article'; index: number }
 type AdRow      = { type: 'ad'; adId: string }
 type ListRow    = ArticleRow | AdRow
 
-function buildPage(startIndex: number, count: number, ids: string[]): ListRow[] {
+function buildPage(startIndex: number, count: number, ids: string[], slotOffset = 0): ListRow[] {
   const rows: ListRow[] = []
+  let slotIndex = slotOffset
   for (let i = 0; i < count; i++) {
     const index = startIndex + i
     rows.push({ type: 'article', index })
-    if (index % ADS_PER_GROUP === 0 && ids.length > 0) {
-      const adId = ids[Math.floor(index / ADS_PER_GROUP - 1) % ids.length]
-      rows.push({ type: 'ad', adId })
+    if (index % ADS_PER_GROUP === 0 && slotIndex < ids.length) {
+      rows.push({ type: 'ad', adId: ids[slotIndex] })
+      slotIndex++
     }
   }
   return rows
@@ -46,32 +49,57 @@ function ArticleItem({ index }: { index: number }) {
   )
 }
 
+// Each ad in a list needs its own height state — SDK reports per-creative size via onAdSize,
+// and resizing the RNAdView triggers the native onLayout that force-layouts the WebView.
+// Overlay types (popup, welcome) collapse to 0×0 since the SDK shows them as its own window.
+// Subscription is handled at screen level; each item just renders with the shared tag + its adId.
+function AdListItem({ tag, adId, requestId }: { tag: string; adId: string; requestId: string }) {
+  const [height, setHeight] = useState(250)
+  const [overlay, setOverlay] = useState(false)
+
+  return (
+    <RNAdView
+      tag={tag}
+      adId={adId}
+      requestId={requestId}
+      style={overlay ? { width: 0, height: 0 } : { width: '100%', height }}
+      onAdReady={(e: AdReadyEvent) => {
+        const t = e.nativeEvent.adType.toLowerCase()
+        if (t === 'popup' || t === 'welcome') setOverlay(true)
+      }}
+      onAdSize={(e: AdSizeEvent) => setHeight(e.nativeEvent.height)}
+    />
+  )
+}
+
 export default function AdScreen() {
   const { title, adId, adIds } = useLocalSearchParams<{
     title: string; adId: string; adIds: string
   }>()
   const router = useRouter()
   const insets = useSafeAreaInsets()
-  const [loading, setLoading] = useState(true)
   const [rows, setRows] = useState<ListRow[]>([])
   const [paging, setPaging] = useState(false)
   const [page, setPage] = useState(1)
   const [adHeight, setAdHeight] = useState<number | null>(null)
   const [singleAdType, setSingleAdType] = useState<string | null>(null)
+  const subscribedTag = useRef<string | null>(null)
 
   const ids = adIds ? adIds.split(',').filter(Boolean) : adId ? [adId] : []
-  const tag = `/${(title ?? 'ad').toLowerCase().replace(/\s+/g, '-')}`
+  const tag = `${(title ?? 'ad').toLowerCase().replace(/\s+/g, '-')}`
   const hasNativeModule = !!NativeModules.AdsModule
-  const isFlatList     = title === 'FlatList'
+  const isFlatList        = title === 'FlatList'
   const isVirtualizedList = title === 'VirtualizedList'
+  const isPopupFullScreen = title === 'Popup'
   const categoryLabel = isFlatList || isVirtualizedList ? 'MIX' : 'BASIC'
 
   useEffect(() => {
-    if (!ids.length || !hasNativeModule) { setLoading(false); return }
-    initAds(APP_ID, APP_NAME, APP_VERSION)
-    requestAds(tag, REQUEST_ID, ids)
-    const timer = setTimeout(() => setLoading(false), 3000)
-    return () => clearTimeout(timer)
+    if (!ids.length || !hasNativeModule || subscribedTag.current === tag) return
+    subscribedTag.current = tag
+    subscribeVccAds(tag, () => {
+      setDeviceId(DEVICE_ID)
+      requestAds(tag, REQUEST_ID, ids, DEFAULT_URL, DEFAULT_CHANNEL)
+    })
   }, [tag])
 
   // Khởi tạo trang đầu cho FlatList
@@ -83,8 +111,11 @@ export default function AdScreen() {
     if (paging) return
     setPaging(true)
     setTimeout(() => {
-      const next = buildPage(page * PAGE_SIZE + 1, PAGE_SIZE, ids)
-      setRows((prev) => [...prev, ...next])
+      setRows((prev) => {
+        const slotOffset = prev.filter(r => r.type === 'ad').length
+        const next = buildPage(page * PAGE_SIZE + 1, PAGE_SIZE, ids, slotOffset)
+        return [...prev, ...next]
+      })
       setPage((p) => p + 1)
       setPaging(false)
     }, 800)
@@ -107,13 +138,15 @@ export default function AdScreen() {
       return (
         <FlatList
           data={listData}
+          initialNumToRender={15}
+          windowSize={5}
           keyExtractor={(item, i) =>
             item.type === 'ad' ? `ad-${item.adId}-${i}` : `article-${item.index}`
           }
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           renderItem={({ item }) =>
             item.type === 'ad'
-              ? <RNAdView tag={tag} adId={item.adId} requestId={REQUEST_ID} style={styles.adView} />
+              ? <AdListItem tag={tag} adId={item.adId} requestId={REQUEST_ID}  />
               : <ArticleItem index={item.index} />
           }
         />
@@ -139,25 +172,29 @@ export default function AdScreen() {
           }
           renderItem={({ item }) =>
             item.type === 'ad'
-              ? <RNAdView tag={tag} adId={item.adId} requestId={REQUEST_ID} style={styles.adView} />
+              ? <AdListItem tag={tag} adId={item.adId} requestId={REQUEST_ID}  />
               : <ArticleItem index={item.index} />
           }
         />
       )
     }
 
-    const isFullscreen = singleAdType === 'popup' || singleAdType === 'non_popup'
-    const singleStyle = isFullscreen || adHeight === null
-      ? styles.adViewSingle
-      : { ...styles.adViewSingle, flex: 0, height: adHeight } as const
+    const isOverlay = singleAdType === 'welcome' || (singleAdType === 'popup' && isPopupFullScreen)
+    const singleStyle = isOverlay
+      ? { width: 0, height: 0 } as const
+      : adHeight === null
+        ? styles.adViewSingle
+        : { ...styles.adViewSingle, flex: 0, height: adHeight } as const
 
     return (
       <RNAdView
         tag={tag}
         adId={ids[0] ?? ''}
         requestId={REQUEST_ID}
+        popupFullScreen={isPopupFullScreen}
         style={singleStyle}
         onAdReady={(e: AdReadyEvent) => {
+          console.log('[single ad] onAdReady', { tag, adId: ids[0], adType: e.nativeEvent.adType, lowercased: e.nativeEvent.adType.toLowerCase() })
           setSingleAdType(e.nativeEvent.adType)
         }}
         onAdSize={(e: AdSizeEvent) => setAdHeight(e.nativeEvent.height)}
@@ -179,12 +216,6 @@ export default function AdScreen() {
 
       <View style={styles.body}>{renderAdContent()}</View>
 
-      {loading && (
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#1B3665" />
-          <Text style={styles.loadingText}>Đang tải quảng cáo...</Text>
-        </View>
-      )}
     </View>
   )
 }
@@ -225,9 +256,4 @@ const styles = StyleSheet.create({
   placeholder: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 10 },
   placeholderTitle: { color: '#333', fontSize: 18, fontWeight: '600', marginTop: 8 },
   placeholderSub: { color: '#999', fontSize: 13 },
-  loadingOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', gap: 12,
-  },
-  loadingText: { color: '#999', fontSize: 14 },
 })

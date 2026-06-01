@@ -1,20 +1,25 @@
-# Welcome to your Expo app 👋
+# Ads SDK Demo
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Ứng dụng Expo demo để kiểm thử `@mysoha/rn_ads_sdk` trên Android và iOS.
 
-## Get started
+---
+## Yêu cầu
 
-1. Install dependencies
+- Node.js 18+
+- Android: Android Studio + emulator hoặc thiết bị thật (API 24+)
+- iOS: Xcode + Simulator hoặc thiết bị thật
 
-   ```bash
-   npm install
-   ```
+---
+## Cài đặt & chạy
 
-2. Start the app
+```bash
+npm install
+```
 
-   ```bash
-   npx expo start
-   ```
+### Android
+```bash
+npm run android
+```
 
 In the output, you'll find options to open the app in a
 
@@ -30,21 +35,51 @@ You can start developing by editing the files inside the **app** directory. This
 When you're ready, run:
 
 ```bash
-npm run reset-project
+cd ios && pod install && cd ..
+npm run ios
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Dev server (Expo)
+```bash
+npm run start
+```
 
-## Learn more
+---
+## Cấu trúc
 
-To learn more about developing your project with Expo, look at the following resources:
+```
+demo/
+├── app/
+│   ├── _layout.tsx       # root layout — gọi initAds() khi app mount
+│   ├── index.tsx         # màn hình home — danh sách các loại quảng cáo
+│   └── ad-screen.tsx     # màn hình chi tiết — xử lý tất cả các format
+├── src/features/ads/
+│   ├── data/ads.ts       # registry: loại ad → label, adId, icon/màu
+│   └── components/       # AdCard, BasicAdsSection, MixAdsSection
+└── withAndroidSetup.js   # Expo config plugin — cấu hình Android native
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+---
+## Các loại quảng cáo được hỗ trợ
 
-## Join the community
+### BASIC
 
-Join our community of developers creating universal apps.
+| Loại | AdId | Mô tả |
+|---|---|---|
+| Banner | 13450 | Banner inline, resize theo `onAdSize` |
+| Popup | 19597 | Popup toàn màn hình (`popupFullScreen=true`) |
+| NonPopup | 19597 | Popup render inline trong view (`popupFullScreen=false`) |
+| Welcome | 14028 | Màn chào toàn màn hình, tự động hiển thị sau khi request |
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### MIX (quảng cáo trong danh sách)
+
+| Loại | AdIds | Mô tả |
+|---|---|---|
+| FlatList | 13450, 19325–19329 | Xen kẽ quảng cáo sau mỗi 10 bài viết, dùng `FlatList` |
+| VirtualizedList | 13450, 19325–19329 | Tương tự FlatList nhưng dùng `VirtualizedList` với infinite scroll |
+
+---
+## Lưu ý khi phát triển
+- `withAndroidSetup.js` tự động inject Maven repo, fix theme conflict và exclude `META-INF` okhttp — không chỉnh tay `android/` nếu không cần thiết.
+- Biến `DEVICE_ID` trong `ad-screen.tsx` là giá trị cứng dùng để test — thay bằng IDFA/GAID thực khi tích hợp vào app production.
+- Quảng cáo trong danh sách (FlatList/VirtualizedList) dùng chung một tag cho cả màn hình, mỗi slot dùng một adId **khác nhau** (không lặp). SDK route event theo `tag + adId` nên không cần subscribe riêng từng slot.

@@ -14,11 +14,12 @@ export enum AdCategory {
 
 export const AdViewType = {
   banner:     { label: 'Banner',     ids: ['13450'] },
-  popup:      { label: 'Popup',      ids: ['13994'] },
-  // inPage:     { label: 'InPage',     ids: ['13691'] },
-  // welcome:    { label: 'Welcome',    ids: ['14028'] },
-  // catfish:    { label: 'Catfish',    ids: ['13991'] },
-  // home:       { label: 'Home',       ids: ['19217'] },
+  popup:      { label: 'Popup',      ids: ['19597'] },
+  nonPopup:   { label: 'NonPopup',   ids: ['19597'] },
+  // inPage:  { label: 'InPage',     ids: ['13691'] },
+  welcome:    { label: 'Welcome',    ids: ['14028'] },
+  // catfish: { label: 'Catfish',    ids: ['13991'] },
+  // home:    { label: 'Home',       ids: ['19217'] },
   list:       { label: 'FlatList',        ids: ['13450', '19325', '19326', '19327', '19328', '19329'] },
   flatList:   { label: 'VirtualizedList', ids: ['13450', '19325', '19326', '19327', '19328', '19329'] },
 } as const
@@ -36,15 +37,16 @@ export type AdItem = {
 export const AD_ITEMS: AdItem[] = [
   { id: 1, type: 'banner',     category: AdCategory.basic },
   { id: 2, type: 'popup',      category: AdCategory.basic },
-  // { id: 3, type: 'inPage',     category: AdCategory.basic },
-  // { id: 4, type: 'welcome',    category: AdCategory.basic },
-  // { id: 5, type: 'catfish',    category: AdCategory.basic },
-  // { id: 6, type: 'home',       category: AdCategory.basic },
-  { id: 7, type: 'list',       category: AdCategory.mix   },
-  { id: 8, type: 'flatList',   category: AdCategory.mix   },
+  { id: 3, type: 'nonPopup',   category: AdCategory.basic },
+  // { id: 4, type: 'inPage',  category: AdCategory.basic },
+  { id: 5, type: 'welcome',    category: AdCategory.basic },
+  // { id: 6, type: 'catfish', category: AdCategory.basic },
+  // { id: 7, type: 'home',    category: AdCategory.basic },
+  { id: 8, type: 'list',       category: AdCategory.mix   },
+  { id: 9, type: 'flatList',   category: AdCategory.mix   },
 ]
 
-// ─── UI config (icon / color) — tách khỏi model để dễ thay đổi ───────────────
+// ─── UI config (icon / color) ─────────────────────────────────────────────────
 
 export type AdUiConfig = {
   icon: IconName
@@ -53,13 +55,14 @@ export type AdUiConfig = {
 }
 
 export const AD_UI_CONFIG: Record<AdViewTypeKey, AdUiConfig> = {
-  banner:     { icon: 'document-text-outline',    iconColor: '#3B82F6', iconBg: '#EFF6FF' },
-  popup:      { icon: 'open-outline',             iconColor: '#8B5CF6', iconBg: '#F5F3FF' },
-  // inPage:     { icon: 'newspaper-outline',        iconColor: '#10B981', iconBg: '#ECFDF5' },
-  // welcome:    { icon: 'hand-right-outline',       iconColor: '#F59E0B', iconBg: '#FFFBEB' },
-  // catfish:    { icon: 'arrow-down-circle-outline',iconColor: '#3B82F6', iconBg: '#EFF6FF' },
-  // home:       { icon: 'home-outline',             iconColor: '#10B981', iconBg: '#ECFDF5' },
-  list:       { icon: 'grid-outline',             iconColor: '#8B5CF6', iconBg: '#F5F3FF' },
+  banner:     { icon: 'document-text-outline',     iconColor: '#3B82F6', iconBg: '#EFF6FF' },
+  popup:      { icon: 'open-outline',              iconColor: '#8B5CF6', iconBg: '#F5F3FF' },
+  nonPopup:   { icon: 'albums-outline',            iconColor: '#8B5CF6', iconBg: '#F5F3FF' },
+  // inPage:  { icon: 'newspaper-outline',         iconColor: '#10B981', iconBg: '#ECFDF5' },
+  welcome:    { icon: 'hand-right-outline',        iconColor: '#F59E0B', iconBg: '#FFFBEB' },
+  // catfish: { icon: 'arrow-down-circle-outline', iconColor: '#3B82F6', iconBg: '#EFF6FF' },
+  // home:    { icon: 'home-outline',              iconColor: '#10B981', iconBg: '#ECFDF5' },
+  list:       { icon: 'grid-outline',              iconColor: '#8B5CF6', iconBg: '#F5F3FF' },
   flatList:   { icon: 'infinite-outline',          iconColor: '#EF4444', iconBg: '#FEF2F2' },
 }
 
